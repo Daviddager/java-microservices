@@ -36,9 +36,16 @@ jobs:
           ./gradlew bootjar
           ls build/libs
 
+      - name: normalize username
+        id: normalize-repo
+        run: |
+          repo=${{ github.repository }}
+          normalized_repo=$(echo "$repo" | tr '[:upper:]' '[:lower:]')
+          echo "repository=$normalized_repo" >> $GITHUB_OUTPUT
+
       - name: Docker build
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/java-micro:${{ github.sha }} .
+          docker build -t ghcr.io/${{ steps.normalize-repo.outputs.repository }}/java-micro:${{ github.sha }} .
 
       - name: Docker login
         env:
@@ -49,4 +56,4 @@ jobs:
 
       - name: Docker push
         run: |
-          docker push ghcr.io/${{ github.repository }}/java-micro:${{ github.sha }}
+          docker push ghcr.io/${{ steps.normalize-repo.outputs.repository }}/java-micro:${{ github.sha }}
