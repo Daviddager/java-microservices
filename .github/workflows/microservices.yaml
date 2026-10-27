@@ -43,17 +43,22 @@ jobs:
           normalized_repo=$(echo "$repo" | tr '[:upper:]' '[:lower:]')
           echo "repository=$normalized_repo" >> $GITHUB_OUTPUT
 
-      - name: Docker build
-        run: |
-          docker build -t ghcr.io/${{ steps.normalize-repo.outputs.repository }}/java-micro:${{ github.sha }} .
+      - name: configure docker
+        # Using v4.4.1
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
 
-      - name: Docker login
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${GITHUB_TOKEN}"
-          echo "${{ env.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-      - name: Docker push
-        run: |
-          docker push ghcr.io/${{ steps.normalize-repo.outputs.repository }}/java-micro:${{ github.sha }}
+      - name: login to ghcr
+        # Using v4.7.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: build and push docker image
+        # Using v7.4.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+        with:
+          context: .
+          push: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
+          tags: ghcr.io/${{ steps.normalize-repo.outputs.repository }}:${{ github.sha }}
