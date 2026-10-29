@@ -11,12 +11,14 @@ runs:
   using: "composite"
   steps:
     - name: build-gradle
+      shell: bash
       run: |
         ./gradlew bootjar
         ls build/libs
 
     - name: normalize username
       id: normalize-repo
+      shell: bash
       run: |
         repo=${{ github.repository }}
         normalized_repo=$(echo "$repo" | tr '[:upper:]' '[:lower:]')
