@@ -12,6 +12,8 @@ permissions:
 jobs:
   build-micro:
     uses: ./.github/workflows/reusable.yaml
+    with:
+      java_version: '25'
     secrets:
       gh_token: ${{ secrets.GITHUB_TOKEN }}
       
