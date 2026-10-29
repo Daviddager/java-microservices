@@ -1,0 +1,17 @@
+on:
+  push:
+  
+  pull_request: 
+    branches: 
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-micro:
+    uses: ./.github/workflows/reusable.yaml
+    secrets:
+      gh_token: ${{ secrets.GITHUB_TOKEN }}
+      
